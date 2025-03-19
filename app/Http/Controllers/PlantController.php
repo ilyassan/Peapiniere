@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\StorePlantRequest;
+use App\Http\Requests\UpdatePlantRequest;
 use App\Models\Image;
 use App\Models\Plant;
 use Illuminate\Http\Request;
@@ -35,6 +36,44 @@ class PlantController extends Controller
                     "message" => "Plant not found",
                 ], 404);
             }
+
+            return response()->json($plant, 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => false,
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function update(int $id, UpdatePlantRequest $request)
+    {
+        try {
+            $plant = Plant::find($id);
+
+            if (!$plant) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Plant not found",
+                ], 404);
+            }
+
+            $plant->name = $request->name ?? $plant->name;
+            $plant->category_id = $request->category_id ?? $plant->category_id;
+            $plant->save();
+
+            if ($request->has("images")) {
+                $plant->images()->delete();
+                
+                foreach ($request->images as $url) {
+                    Image::create([
+                        "url" => $url,
+                        "plant_id" => $plant->id
+                    ]);
+                }
+            }
+
 
             return response()->json($plant, 200);
 
