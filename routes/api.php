@@ -10,7 +10,7 @@ Route::prefix("plants")->group(function () {
     Route::post("/", [PlantController::class, "store"]);
     Route::get("/{id}", [PlantController::class, "show"]);
     Route::put("/{id}", [PlantController::class, "update"]);
-    // Route::delete("/{plant}", [PlantController::class, "destroy"]);
+    Route::delete("/{id}", [PlantController::class, "destroy"]);
 });
 
 Route::get('/user', function (Request $request) {
