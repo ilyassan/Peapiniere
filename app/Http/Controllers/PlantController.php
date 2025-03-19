@@ -21,4 +21,26 @@ class PlantController extends Controller
             ], 500);
         }
     }
+
+    public function show(int $id)
+    {
+        try {
+            $plant = Plant::find($id);
+            
+            if (!$plant) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Plant not found",
+                ], 404);
+            }
+
+            return response()->json($plant, 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => false,
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
 }

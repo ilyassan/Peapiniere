@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 Route::prefix("plants")->group(function () {
     Route::get("/", [PlantController::class, "index"]);
     // Route::post("/", [PlantController::class, "store"]);
-    // Route::get("/{plant}", [PlantController::class, "show"]);
+    Route::get("/{id}", [PlantController::class, "show"]);
     // Route::put("/{plant}", [PlantController::class, "update"]);
     // Route::delete("/{plant}", [PlantController::class, "destroy"]);
 });
