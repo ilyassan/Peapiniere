@@ -23,6 +23,28 @@ class OrderController extends Controller
         }
     }
 
+    public function show(int $id)
+    {
+        try {
+            $order = Order::find($id);
+
+            if (!$order) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Order not found",
+                ], 404);
+            }
+
+            return response()->json($order, 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => false,
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
     public function update(int $id, UpdateOrderRequest $request)
     {
         try {
