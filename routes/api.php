@@ -19,7 +19,6 @@ Route::prefix("orders")->group(function () {
     Route::post("/", [OrderController::class, "store"]);
     Route::get("/{id}", [OrderController::class, "show"]);
     Route::put("/{id}", [OrderController::class, "update"]);
-    Route::delete("/{id}", [OrderController::class, "destroy"]);
 });
 
 Route::get('/user', function (Request $request) {
