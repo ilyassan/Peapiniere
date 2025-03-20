@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Order;
+use App\Models\Plant;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
