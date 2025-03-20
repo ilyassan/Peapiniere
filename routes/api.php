@@ -1,10 +1,13 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlantController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get("/statistics", [DashboardController::class, "index"]);
 
 Route::prefix("plants")->group(function () {
     Route::get("/", [PlantController::class, "index"]);
