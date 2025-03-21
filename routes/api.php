@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlantController;
@@ -22,6 +23,13 @@ Route::prefix("orders")->group(function () {
     Route::post("/", [OrderController::class, "store"]);
     Route::get("/{id}", [OrderController::class, "show"]);
     Route::put("/{id}", [OrderController::class, "update"]);
+});
+
+Route::prefix("categories")->group(function () {
+    Route::get("/", [CategoryController::class, "index"]);
+    Route::post("/", [CategoryController::class, "store"]);
+    Route::get("/{id}", [CategoryController::class, "show"]);
+    Route::put("/{id}", [CategoryController::class, "update"]);
 });
 
 Route::get('/user', function (Request $request) {
