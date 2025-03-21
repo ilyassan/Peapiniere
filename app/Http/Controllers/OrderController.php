@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -70,12 +72,19 @@ class OrderController extends Controller
         }
     }
 
-    public function store()
+    public function store(StoreOrderRequest $request)
     {
         try {
+
+            DB::beginTransaction();
+
             $order = Order::create([
-                "client_id" => Auth::id() ?? 20, 
+                "client_id" => user()->id,
             ]);
+
+            $order->plants()->attach($request->plants_ids);
+
+            DB::commit();
 
             return response()->json($order, 201);
 
