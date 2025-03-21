@@ -25,10 +25,10 @@ class PlantController extends Controller
         }
     }
 
-    public function show(int $id)
+    public function show($slug)
     {
         try {
-            $plant = Plant::find($id);
+            $plant = Plant::where("slug", $slug)->firstOrFail();
 
             if (!$plant) {
                 return response()->json([
@@ -47,10 +47,10 @@ class PlantController extends Controller
         }
     }
 
-    public function update(int $id, UpdatePlantRequest $request)
+    public function update($slug, UpdatePlantRequest $request)
     {
         try {
-            $plant = Plant::find($id);
+            $plant = Plant::where("slug", $slug)->firstOrFail();
 
             if (!$plant) {
                 return response()->json([
@@ -110,10 +110,10 @@ class PlantController extends Controller
         }
     }
 
-    public function destroy(int $id)
+    public function destroy($slug)
     {
         try {
-            $plant = Plant::find($id);
+            $plant = Plant::where("slug", $slug)->firstOrFail();
 
             if (!$plant) {
                 return response()->json([
