@@ -22,4 +22,26 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    public function show(int $id)
+    {
+        try {
+            $category = Category::find($id);
+
+            if (!$category) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Category not found",
+                ], 404);
+            }
+
+            return response()->json($category, 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => false,
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
 }
