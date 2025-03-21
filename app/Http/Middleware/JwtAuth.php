@@ -17,13 +17,13 @@ class JwtAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $jwtService = new JWTService();
-
         $token = $request->bearerToken();
 
         if (!$token) {
             return response()->json(['message' => 'Token not provided'], 401);
         }
+        
+        $jwtService = new JWTService();
 
         if (!$jwtService->validateToken($token)) {
             return response()->json(['message' => 'Invalid token'], 401);

@@ -14,6 +14,18 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
             'jwt.auth' => \App\Http\Middleware\JwtAuth::class,
+            'jwt.guest' => \App\Http\Middleware\JwtGuest::class,
+            'admin' => \App\Http\Middleware\isAdmin::class,
+            'employee' => \App\Http\Middleware\isEmployee::class,
+            'client' => \App\Http\Middleware\isClient::class,
+        ]);
+
+        $middleware->priority([
+            \App\Http\Middleware\JwtAuth::class,
+            \App\Http\Middleware\JwtGuest::class,
+            \App\Http\Middleware\isAdmin::class,
+            \App\Http\Middleware\isEmployee::class,
+            \App\Http\Middleware\isClient::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
