@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Models\Order;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -13,7 +12,11 @@ class OrderController extends Controller
     public function index()
     {
         try {
-            $orders = Order::all();
+            if (user()->isClient()) {
+                $orders = user()->orders;
+            }else{
+                $orders = Order::all();
+            }
 
             return response()->json($orders, 200);
 
@@ -59,6 +62,13 @@ class OrderController extends Controller
                 ], 404);
             }
 
+            if (user()->isClient() && (($order->client_id != user()->id) || ($request->status != "cancelled" && $order->status != "pending"))) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "You are not allowed to update this order",
+                ], 403);
+            }
+
             $order->status = $request->status;
             $order->save();
 
@@ -75,7 +85,6 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         try {
-
             DB::beginTransaction();
 
             $order = Order::create([
