@@ -14,9 +14,9 @@ Route::middleware("jwt.auth")->group(function(){
     Route::prefix("plants")->group(function () {
         Route::get("/", [PlantController::class, "index"]);
         Route::post("/", [PlantController::class, "store"])->middleware("admin");
-        Route::get("/{id}", [PlantController::class, "show"]);
-        Route::put("/{id}", [PlantController::class, "update"])->middleware("admin");
-        Route::delete("/{id}", [PlantController::class, "destroy"])->middleware("admin");
+        Route::get("/{slug}", [PlantController::class, "show"]);
+        Route::put("/{slug}", [PlantController::class, "update"])->middleware("admin");
+        Route::delete("/{slug}", [PlantController::class, "destroy"])->middleware("admin");
     });
 
     Route::prefix("orders")->group(function () {

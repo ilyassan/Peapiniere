@@ -71,10 +71,12 @@ class AuthController extends Controller
 
             // Create payload
             $payload = [
-                'user_id' => $user->id,
+                'id' => $user->id,
+                'name' => $user->name,
                 'email' => $user->email,
+                'role_id' => $user->role_id,
             ];
-
+            
             $token = $jwtService->generateToken($payload);
 
             if (!$token) {
