@@ -30,6 +30,7 @@ Route::prefix("categories")->group(function () {
     Route::post("/", [CategoryController::class, "store"]);
     Route::get("/{id}", [CategoryController::class, "show"]);
     Route::put("/{id}", [CategoryController::class, "update"]);
+    Route::delete("/{id}", [CategoryController::class, "destroy"]);
 });
 
 Route::get('/user', function (Request $request) {

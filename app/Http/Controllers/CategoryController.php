@@ -89,4 +89,31 @@ class CategoryController extends Controller
             ], 500);
         }
     }
+
+    public function destroy(int $id)
+    {
+        try {
+            $category = Category::find($id);
+
+            if (!$category) {
+                return response()->json([
+                    "status" => false,
+                    "message" => "Category not found",
+                ], 404);
+            }
+
+            $category->delete();
+
+            return response()->json([
+                "status" => true,
+                "message" => "Category deleted successfully."
+            ], 200);
+
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => false,
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
 }
