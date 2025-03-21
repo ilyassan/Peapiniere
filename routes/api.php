@@ -1,10 +1,10 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlantController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
@@ -33,6 +33,11 @@ Route::prefix("categories")->group(function () {
     Route::delete("/{id}", [CategoryController::class, "destroy"]);
 });
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::prefix("auth")->group(function () {
+    Route::post("/signup", [AuthController::class, "signup"]);
+    Route::post("/login", [AuthController::class, "login"]);
+});
+
+Route::get('/user', function () {
+    return user();
+})->middleware('jwt.auth');
