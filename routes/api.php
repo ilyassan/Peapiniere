@@ -36,6 +36,7 @@ Route::prefix("categories")->group(function () {
 Route::prefix("auth")->group(function () {
     Route::post("/signup", [AuthController::class, "signup"]);
     Route::post("/login", [AuthController::class, "login"]);
+    Route::post("/logout", [AuthController::class, "logout"]);
 });
 
 Route::get('/user', function () {
