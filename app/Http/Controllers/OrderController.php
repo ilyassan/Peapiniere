@@ -4,11 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
-use App\Models\Order;
-use Illuminate\Support\Facades\DB;
+use App\Repositories\OrderRepositoryInterface;
 
 class OrderController extends Controller
 {
+    protected $orderRepository;
+
+    public function __construct(OrderRepositoryInterface $orderRepository)
+    {
+        $this->orderRepository = $orderRepository;
+    }
+
     /**
      * @OA\Get(
      *     path="/api/orders",
@@ -45,12 +51,7 @@ class OrderController extends Controller
     public function index()
     {
         try {
-            if (user()->isClient()) {
-                $orders = user()->orders;
-            } else {
-                $orders = Order::all();
-            }
-
+            $orders = $this->orderRepository->all(user());
             return response()->json($orders, 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -108,7 +109,7 @@ class OrderController extends Controller
     public function show(int $id)
     {
         try {
-            $order = Order::find($id);
+            $order = $this->orderRepository->find($id);
 
             if (!$order) {
                 return response()->json([
@@ -189,7 +190,12 @@ class OrderController extends Controller
     public function update(int $id, UpdateOrderRequest $request)
     {
         try {
-            $order = Order::find($id);
+            $data = [
+                'status' => $request->status,
+                'user' => user(),
+            ];
+
+            $order = $this->orderRepository->update($id, $data);
 
             if (!$order) {
                 return response()->json([
@@ -198,15 +204,12 @@ class OrderController extends Controller
                 ], 404);
             }
 
-            if (user()->isClient() && (($order->client_id != user()->id) || ($request->status != "cancelled" && $order->status != "pending"))) {
+            if ($order === false) {
                 return response()->json([
                     "status" => false,
                     "message" => "You are not allowed to update this order",
                 ], 403);
             }
-
-            $order->status = $request->status;
-            $order->save();
 
             return response()->json($order, 200);
         } catch (\Throwable $th) {
@@ -257,19 +260,15 @@ class OrderController extends Controller
     public function store(StoreOrderRequest $request)
     {
         try {
-            DB::beginTransaction();
+            $data = [
+                'user_id' => user()->id,
+                'plants_ids' => $request->plants_ids,
+            ];
 
-            $order = Order::create([
-                "client_id" => user()->id,
-            ]);
-
-            $order->plants()->attach($request->plants_ids);
-
-            DB::commit();
+            $order = $this->orderRepository->create($data);
 
             return response()->json($order, 201);
         } catch (\Throwable $th) {
-            DB::rollBack();
             return response()->json([
                 "status" => false,
                 "message" => $th->getMessage(),
