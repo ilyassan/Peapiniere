@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Repositories\OrderRepositoryInterface;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -51,7 +54,7 @@ class OrderController extends Controller
     public function index()
     {
         try {
-            $orders = $this->orderRepository->all(user());
+            $orders = $this->orderRepository->all(Auth::user());
             return response()->json($orders, 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -118,7 +121,15 @@ class OrderController extends Controller
                 ], 404);
             }
 
+            // check if the user is allowed to view the order
+            Gate::authorize('view', $order);
+
             return response()->json($order, 200);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                "status" => false,
+                "message" => $e->getMessage(),
+            ], 403);
         } catch (\Throwable $th) {
             return response()->json([
                 "status" => false,
@@ -192,7 +203,7 @@ class OrderController extends Controller
         try {
             $data = [
                 'status' => $request->status,
-                'user' => user(),
+                'user' => Auth::user(),
             ];
 
             $order = $this->orderRepository->update($id, $data);
@@ -261,7 +272,7 @@ class OrderController extends Controller
     {
         try {
             $data = [
-                'user_id' => user()->id,
+                'user_id' => Auth::id(),
                 'plants_ids' => $request->plants_ids,
             ];
 
