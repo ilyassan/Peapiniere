@@ -52,6 +52,7 @@ class PlantController extends Controller
         try {
             $plants = $this->plantRepository->all();
             return response()->json($plants, 200);
+            
         } catch (\Throwable $th) {
             return response()->json([
                 "status" => false,

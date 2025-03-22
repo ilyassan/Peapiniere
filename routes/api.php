@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PlantController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 
@@ -42,5 +43,5 @@ Route::prefix("auth")->group(function () {
 })->middleware("jwt.guest");
 
 Route::get('/user', function () {
-    return user();
+    return Auth::user();
 })->middleware('jwt.auth');
