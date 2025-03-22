@@ -2,74 +2,39 @@
 
 namespace App\Repositories;
 
-use App\Models\Plant;
-use App\Models\Image;
+use App\DAO\PlantDAOInterface;
 
 class PlantRepository implements PlantRepositoryInterface
 {
-    protected $plant;
-    protected $image;
+    protected $plantDAO;
 
-    public function __construct(Plant $plant, Image $image)
+    public function __construct(PlantDAOInterface $plantDAO)
     {
-        $this->plant = $plant;
-        $this->image = $image;
+        $this->plantDAO = $plantDAO;
     }
 
     public function all()
     {
-        return $this->plant->all();
+        return $this->plantDAO->getAll();
     }
 
     public function findBySlug($slug)
     {
-        return $this->plant->where('slug', $slug)->firstOrFail();
+        return $this->plantDAO->findBySlug($slug);
     }
 
     public function create(array $data)
     {
-        $plant = $this->plant->create([
-            'name' => $data['name'],
-            'category_id' => $data['category_id'],
-        ]);
-
-        foreach ($data['images'] as $url) {
-            $this->image->create([
-                'url' => $url,
-                'plant_id' => $plant->id,
-            ]);
-        }
-
-        return $plant;
+        return $this->plantDAO->create($data);
     }
 
     public function update($slug, array $data)
     {
-        $plant = $this->plant->where('slug', $slug)->firstOrFail();
-
-        $plant->update([
-            'name' => $data['name'] ?? $plant->name,
-            'category_id' => $data['category_id'] ?? $plant->category_id,
-        ]);
-
-        if (isset($data['images'])) {
-            $plant->images()->delete();
-
-            foreach ($data['images'] as $url) {
-                $this->image->create([
-                    'url' => $url,
-                    'plant_id' => $plant->id,
-                ]);
-            }
-        }
-
-        return $plant;
+        return $this->plantDAO->update($slug, $data);
     }
 
     public function delete($slug)
     {
-        $plant = $this->plant->where('slug', $slug)->firstOrFail();
-        $plant->delete();
-        return $plant;
+        return $this->plantDAO->delete($slug);
     }
 }

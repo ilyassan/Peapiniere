@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\DAO\OrderDAO;
+use App\DAO\OrderDAOInterface;
+use App\DAO\PlantDAO;
+use App\DAO\PlantDAOInterface;
 use App\Guards\JwtGuard;
 use App\Repositories\CategoryRepository;
 use App\Repositories\CategoryRepositoryInterface;
@@ -20,6 +24,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Bind DAO
+        $this->app->bind(PlantDAOInterface::class, PlantDAO::class);
+        $this->app->bind(OrderDAOInterface::class, OrderDAO::class);
+
+        // Bind Repositories
         $this->app->bind(PlantRepositoryInterface::class, PlantRepository::class);
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(CategoryRepositoryInterface::class, CategoryRepository::class);

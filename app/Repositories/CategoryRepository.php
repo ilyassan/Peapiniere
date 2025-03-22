@@ -2,57 +2,39 @@
 
 namespace App\Repositories;
 
-use App\Models\Category;
+use App\DAO\CategoryDAOInterface;
 
 class CategoryRepository implements CategoryRepositoryInterface
 {
-    protected $category;
+    protected $categoryDAO;
 
-    public function __construct(Category $category)
+    public function __construct(CategoryDAOInterface $categoryDAO)
     {
-        $this->category = $category;
+        $this->categoryDAO = $categoryDAO;
     }
 
     public function all()
     {
-        return $this->category->all();
+        return $this->categoryDAO->getAll();
     }
 
     public function find($id)
     {
-        return $this->category->find($id);
+        return $this->categoryDAO->find($id);
     }
 
     public function create(array $data)
     {
-        return $this->category->create([
-            "name" => $data['name'],
-        ]);
+        return $this->categoryDAO->create($data);
     }
 
     public function update($id, array $data)
     {
-        $category = $this->category->find($id);
-
-        if (!$category) {
-            return null;
-        }
-
-        $category->name = $data['name'];
-        $category->save();
-
-        return $category;
+        return $this->categoryDAO->update($id, $data);
     }
 
     public function delete($id)
     {
-        $category = $this->category->find($id);
-
-        if (!$category) {
-            return false;
-        }
-
-        $category->delete();
-        return true;
+        return $this->categoryDAO->delete($id);
     }
 }
