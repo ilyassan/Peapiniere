@@ -4,10 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
-use App\Models\Category;
+use App\Repositories\CategoryRepositoryInterface;
 
 class CategoryController extends Controller
 {
+    protected $categoryRepository;
+
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
+
     /**
      * @OA\Get(
      *     path="/api/categories",
@@ -42,8 +49,7 @@ class CategoryController extends Controller
     public function index()
     {
         try {
-            $categories = Category::all();
-
+            $categories = $this->categoryRepository->all();
             return response()->json($categories, 200);
         } catch (\Throwable $th) {
             return response()->json([
@@ -99,7 +105,7 @@ class CategoryController extends Controller
     public function show(int $id)
     {
         try {
-            $category = Category::find($id);
+            $category = $this->categoryRepository->find($id);
 
             if (!$category) {
                 return response()->json([
@@ -155,10 +161,7 @@ class CategoryController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         try {
-            $category = Category::create([
-                "name" => $request->name,
-            ]);
-
+            $category = $this->categoryRepository->create($request->all());
             return response()->json($category, 201);
         } catch (\Throwable $th) {
             return response()->json([
@@ -221,7 +224,7 @@ class CategoryController extends Controller
     public function update(int $id, UpdateCategoryRequest $request)
     {
         try {
-            $category = Category::find($id);
+            $category = $this->categoryRepository->update($id, $request->all());
 
             if (!$category) {
                 return response()->json([
@@ -229,9 +232,6 @@ class CategoryController extends Controller
                     "message" => "Category not found",
                 ], 404);
             }
-
-            $category->name = $request->name;
-            $category->save();
 
             return response()->json($category, 200);
         } catch (\Throwable $th) {
@@ -285,16 +285,14 @@ class CategoryController extends Controller
     public function destroy(int $id)
     {
         try {
-            $category = Category::find($id);
+            $deleted = $this->categoryRepository->delete($id);
 
-            if (!$category) {
+            if (!$deleted) {
                 return response()->json([
                     "status" => false,
                     "message" => "Category not found",
                 ], 404);
             }
-
-            $category->delete();
 
             return response()->json([
                 "status" => true,
