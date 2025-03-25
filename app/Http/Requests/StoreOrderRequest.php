@@ -5,7 +5,6 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class StoreOrderRequest extends FormRequest
@@ -26,8 +25,9 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "plants_ids" => "required|array|min:1",
-            "plants_ids.*" => "integer|exists:plants,id",
+            "plants" => "required|array|min:1",
+            "plants.*.slug" => "required|string|exists:plants,slug",
+            "plants.*.quantity" => "required|integer|min:1",
         ];
     }
 
@@ -39,11 +39,15 @@ class StoreOrderRequest extends FormRequest
     public function messages()
     {
         return [
-            "plants_ids.required" => "Plants ids is required",
-            "plants_ids.array" => "Plants ids must be an array",
-            "plants_ids.min" => "Plants ids must have at least one element",
-            "plants_ids.*.integer" => "Please select an existed plants.",
-            "plants_ids.*.exists" => "Please select an existed plants.",
+            "plants.required" => "Plants are required",
+            "plants.array" => "Plants must be an array",
+            "plants.min" => "You must provide at least one plant",
+            "plants.*.slug.required" => "Slug for each plant is required",
+            "plants.*.slug.string" => "Each slug must be a string",
+            "plants.*.slug.exists" => "The selected slug does not exist for any plant",
+            "plants.*.quantity.required" => "Quantity for each plant is required",
+            "plants.*.quantity.integer" => "Quantity must be an integer",
+            "plants.*.quantity.min" => "Quantity must be at least 1",
         ];
     }
 

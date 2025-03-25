@@ -3,6 +3,7 @@
 namespace App\DAO;
 
 use App\Models\Order;
+use App\Models\Plant;
 use Illuminate\Support\Facades\DB;
 
 class OrderDAO implements OrderDAOInterface
@@ -35,7 +36,10 @@ class OrderDAO implements OrderDAOInterface
             "client_id" => $data['user_id'],
         ]);
 
-        $order->plants()->attach($data['plants_ids']);
+        foreach ($data["plants"] as $plant) {
+            $id = Plant::findBySlug($plant['slug'])->id;
+            $order->plants()->attach($id, ['quantity' => $plant['quantity']]);
+        }
 
         DB::commit();
 

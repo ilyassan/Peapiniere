@@ -204,7 +204,7 @@ class OrderController extends Controller
         try {
             $data = [
                 'user_id' => Auth::id(),
-                'plants_ids' => $request->plants_ids,
+                'plants' => $request->plants
             ];
 
             $order = $this->orderRepository->create($data);

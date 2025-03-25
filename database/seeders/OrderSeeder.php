@@ -30,7 +30,9 @@ class OrderSeeder extends Seeder
         $plants = Plant::pluck('id')->toArray();
 
         $orders->each(function ($order) use ($plants) {
-            $order->plants()->attach(Arr::random($plants, rand(1, 3)));
+            $order->plants()->attach(Arr::random($plants, rand(1, 3)), [
+                'quantity' => rand(1, 5),
+            ]);
         });
     }
 }
