@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DTO\OrderDTO;
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Requests\UpdateOrderRequest;
 use App\Repositories\OrderRepositoryInterface;
@@ -55,7 +56,20 @@ class OrderController extends Controller
     {
         try {
             $orders = $this->orderRepository->all(Auth::user());
-            return response()->json($orders, 200);
+
+            // Map the orders to OrderDTO
+            $orderDTOs = array_map(function ($order) {
+                return new OrderDTO(
+                    $order["id"],
+                    $order["client_id"],
+                    $order["status"],
+                    $order["created_at"],
+                    $order["updated_at"],
+                    isset($order["plants"]) ? $order["plants"]->pluck('id')->toArray() : []
+                );
+            }, $orders->toArray());
+
+            return response()->json(['data' => $orderDTOs], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 "status" => false,
@@ -124,12 +138,88 @@ class OrderController extends Controller
             // check if the user is allowed to view the order
             Gate::authorize('view', $order);
 
-            return response()->json($order, 200);
+            // Create an OrderDTO
+            $orderDTO = new OrderDTO(
+                $order->id,
+                $order->client_id,
+                $order->status,
+                $order->created_at,
+                $order->updated_at,
+                $order->plants->pluck('id')->toArray()
+            );
+
+            return response()->json(['data' => $orderDTO], 200);
         } catch (AuthorizationException $e) {
             return response()->json([
                 "status" => false,
                 "message" => $e->getMessage(),
             ], 403);
+        } catch (\Throwable $th) {
+            return response()->json([
+                "status" => false,
+                "message" => $th->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * @OA\Post(
+     *     path="/api/orders",
+     *     summary="Create a new order",
+     *     description="Creates a new order with the provided details.",
+     *     operationId="createOrder",
+     *     tags={"Orders"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"plants_ids"},
+     *             @OA\Property(property="plants_ids", type="array", @OA\Items(type="integer", example=1))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Order created successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="id", type="integer", example=1),
+     *             @OA\Property(property="client_id", type="integer", example=1),
+     *             @OA\Property(property="status", type="string", example="pending"),
+     *             @OA\Property(property="created_at", type="string", format="date-time", example="2023-10-01T10:00:00Z"),
+     *             @OA\Property(property="updated_at", type="string", format="date-time", example="2023-10-01T10:00:00Z"),
+     *             @OA\Property(property="plants", type="array", @OA\Items(type="integer", example=1))
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Internal Server Error")
+     *         )
+     *     )
+     * )
+     */
+    public function store(StoreOrderRequest $request)
+    {
+        try {
+            $data = [
+                'user_id' => Auth::id(),
+                'plants_ids' => $request->plants_ids,
+            ];
+
+            $order = $this->orderRepository->create($data);
+
+            // Create an OrderDTO after creation
+            $orderDTO = new OrderDTO(
+                $order->id,
+                $order->client_id,
+                $order->status,
+                $order->created_at,
+                $order->updated_at,
+                $order->plants->pluck('id')->toArray()
+            );
+
+            return response()->json(['data' => $orderDTO], 201);
         } catch (\Throwable $th) {
             return response()->json([
                 "status" => false,
@@ -222,63 +312,17 @@ class OrderController extends Controller
                 ], 403);
             }
 
-            return response()->json($order, 200);
-        } catch (\Throwable $th) {
-            return response()->json([
-                "status" => false,
-                "message" => $th->getMessage(),
-            ], 500);
-        }
-    }
+            // Create an OrderDTO after update
+            $orderDTO = new OrderDTO(
+                $order->id,
+                $order->client_id,
+                $order->status,
+                $order->created_at,
+                $order->updated_at,
+                $order->plants->pluck('id')->toArray()
+            );
 
-    /**
-     * @OA\Post(
-     *     path="/api/orders",
-     *     summary="Create a new order",
-     *     description="Creates a new order with the provided details.",
-     *     operationId="createOrder",
-     *     tags={"Orders"},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"plants_ids"},
-     *             @OA\Property(property="plants_ids", type="array", @OA\Items(type="integer", example=1))
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Order created successfully",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="id", type="integer", example=1),
-     *             @OA\Property(property="client_id", type="integer", example=1),
-     *             @OA\Property(property="status", type="string", example="pending"),
-     *             @OA\Property(property="created_at", type="string", format="date-time", example="2023-10-01T10:00:00Z"),
-     *             @OA\Property(property="updated_at", type="string", format="date-time", example="2023-10-01T10:00:00Z"),
-     *             @OA\Property(property="plants", type="array", @OA\Items(type="integer", example=1))
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=500,
-     *         description="Server error",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Internal Server Error")
-     *         )
-     *     )
-     * )
-     */
-    public function store(StoreOrderRequest $request)
-    {
-        try {
-            $data = [
-                'user_id' => Auth::id(),
-                'plants_ids' => $request->plants_ids,
-            ];
-
-            $order = $this->orderRepository->create($data);
-
-            return response()->json($order, 201);
+            return response()->json(['data' => $orderDTO], 200);
         } catch (\Throwable $th) {
             return response()->json([
                 "status" => false,

@@ -39,7 +39,7 @@ class OrderDAO implements OrderDAOInterface
 
         DB::commit();
 
-        return $order;
+        return $order->fresh();
     }
 
     public function update($id, array $data)

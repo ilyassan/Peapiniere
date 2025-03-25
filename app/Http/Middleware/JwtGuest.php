@@ -18,8 +18,11 @@ class JwtGuest
         $token = $request->bearerToken();
 
         if ($token) {
-            $next($request);
+            return response()->json([
+                'message' => 'You are already logged in.'
+            ], 403);
         }
-        return response()->json(['message' => 'Token not provided'], 401);
+        
+        return $next($request);
     }
 }
