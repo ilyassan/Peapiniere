@@ -24,8 +24,8 @@ class JwtAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->bearerToken();
-
+        $token = $request->cookie('jwt');
+        
         if (!$token) {
             return response()->json(['message' => 'Token not provided'], 401);
         }
