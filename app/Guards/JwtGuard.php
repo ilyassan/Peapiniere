@@ -33,7 +33,7 @@ class JwtGuard implements Guard
         }
 
         // Get the token from the request
-        $token = $this->request->bearerToken();
+        $token = $this->request->cookie('jwt');;
 
         // If no token is provided, return null
         if (!$token) {
