@@ -81,7 +81,7 @@ class AuthController extends Controller
                 ], 500);
             }
 
-            return response()->json(["message" => "Registered Successfully."], 201)->cookie('jwt', $token, 60, '/', null, true, true, false, 'Strict');;
+            return response()->json(["message" => "Registered Successfully."], 201)->cookie('jwt', $token, 60, '/', null, true, true, false, 'Strict');
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
@@ -157,7 +157,7 @@ class AuthController extends Controller
                 ], 500);
             }
 
-            return response()->json(["message" => "Logged in successfully."], 200)->cookie('jwt', $token, 60, '/', null, true, true, false, 'Strict');;
+            return response()->json(["message" => "Logged in successfully."], 200)->cookie('jwt', $token, 60, '/', null, true, true, false, 'Strict');
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

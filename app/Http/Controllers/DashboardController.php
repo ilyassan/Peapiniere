@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Plant;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -44,6 +46,16 @@ class DashboardController extends Controller
     {
         try {
             $totalOrders = Order::count();
+            
+            $totalPlants = Plant::count();
+
+            $totalCustomers = User::clients()->count();
+
+            $totalPlantsWithOrders = DB::table('order_plant')
+                ->select('plants.id')
+                ->join('plants', 'plants.id', '=', 'order_plant.plant_id')
+                ->distinct()
+                ->count('plants.id');
 
             $mostPopularPlants = DB::table('order_plant')
                 ->select('plants.name', DB::raw('count(order_plant.plant_id) as orders_count'))
@@ -59,7 +71,7 @@ class DashboardController extends Controller
                 ->groupBy('categories.name')
                 ->get();
 
-            return response()->json(compact('totalOrders', 'mostPopularPlants', 'categoryDistribution'), 200);
+            return response()->json(compact('totalOrders', 'totalPlants', 'totalCustomers', 'totalPlantsWithOrders', 'mostPopularPlants', 'categoryDistribution'), 200);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,

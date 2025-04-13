@@ -61,11 +61,14 @@ class OrderController extends Controller
             $orderDTOs = array_map(function ($order) {
                 return new OrderDTO(
                     $order["id"],
-                    $order["client_id"],
+                    Auth::user()->isClient() ? null :[
+                        "name" => $order["client"]["name"],
+                        "email" => $order["client"]["email"],
+                    ],
                     $order["status"],
                     $order["created_at"],
                     $order["updated_at"],
-                    isset($order["plants"]) ? $order["plants"]->pluck('id')->toArray() : []
+                    $order["plants"]
                 );
             }, $orders->toArray());
 
@@ -314,12 +317,15 @@ class OrderController extends Controller
 
             // Create an OrderDTO after update
             $orderDTO = new OrderDTO(
-                $order->id,
-                $order->client_id,
-                $order->status,
-                $order->created_at,
-                $order->updated_at,
-                $order->plants->pluck('id')->toArray()
+                $order["id"],
+                [
+                    "name" => $order["client"]["name"],
+                    "email" => $order["client"]["email"],
+                ],
+                $order["status"],
+                $order["created_at"],
+                $order["updated_at"],
+                $order["plants"]->toArray()
             );
 
             return response()->json(['data' => $orderDTO], 200);

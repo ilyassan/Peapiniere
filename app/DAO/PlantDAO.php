@@ -18,12 +18,12 @@ class PlantDAO implements PlantDAOInterface
 
     public function getAll()
     {
-        return $this->plant->all();
+        return $this->plant->with("images", "category")->orderBy("updated_at", "desc")->get();
     }
 
     public function findBySlug($slug)
     {
-        return $this->plant->where('slug', $slug)->firstOrFail();
+        return $this->plant->where('slug', $slug)->with("images", "category")->firstOrFail();
     }
 
     public function create(array $data)
@@ -40,7 +40,7 @@ class PlantDAO implements PlantDAOInterface
             ]);
         }
 
-        return $plant;
+        return $plant->load("category", "images");
     }
 
     public function update($slug, array $data)
@@ -63,7 +63,7 @@ class PlantDAO implements PlantDAOInterface
             }
         }
 
-        return $plant;
+        return $plant->load("category", "images");
     }
 
     public function delete($slug)

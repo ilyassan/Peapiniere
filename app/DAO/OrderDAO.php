@@ -18,9 +18,9 @@ class OrderDAO implements OrderDAOInterface
     public function getAll($user)
     {
         if ($user->isClient()) {
-            return $user->orders;
+            return $user->orders()->with("plants.images", "plants.category")->orderBy("updated_at", "desc")->get();
         }
-        return $this->order->all();
+        return $this->order->with("client", "plants.images", "plants.category")->orderBy("updated_at", "desc")->get();
     }
 
     public function find($id)
@@ -61,6 +61,6 @@ class OrderDAO implements OrderDAOInterface
         $order->status = $data['status'];
         $order->save();
 
-        return $order;
+        return $order->load("client", "plants");
     }
 }

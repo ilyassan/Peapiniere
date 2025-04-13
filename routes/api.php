@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\RoleEnum;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
@@ -44,5 +45,12 @@ Route::prefix("auth")->group(function () {
 Route::post("/logout", [AuthController::class, "logout"]);
 
 Route::get('/user', function () {
-    return Auth::user();
+    $user = Auth::user();
+    
+    return array_merge(
+        $user->toArray(),
+        [
+            "role" => $user->isAdmin() ? "admin" : ($user->isEmployee() ? "employee" : "client")
+        ]
+    );
 })->middleware('jwt.auth');
